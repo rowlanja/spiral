@@ -76,6 +76,45 @@ app.post('/api/circle/initialize', async (req, res) => {
   }
 });
 
+app.post('/api/circle/contract-execution', async (req, res) => {
+  // Expects all required fields in the request body
+  const {
+    abiFunctionSignature,
+    abiParameters,
+    idempotencyKey,
+    contractAddress,
+    feeLevel,
+    walletId,
+    entitySecretCiphertext
+  } = req.body;
+
+  const url = 'https://api.circle.com/v1/w3s/developer/transactions/contractExecution';
+  const options = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer TEST_API_KEY:${TEST_API_KEY}`
+    },
+    body: JSON.stringify({
+      abiFunctionSignature,
+      abiParameters,
+      idempotencyKey,
+      contractAddress,
+      feeLevel,
+      walletId,
+      entitySecretCiphertext
+    })
+  };
+
+  try {
+    const response = await fetch(url, options);
+    const data = await response.json();
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to execute contract via Circle API' });
+  }
+});
+
 const PORT = 3030;
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}/`);
